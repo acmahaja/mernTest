@@ -24,16 +24,21 @@ jobs:
       with:
         credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
-    - name: Build and Push Container
-      run: |-
-        docker build -t mern-server:latest ./server
-        docker push mern-server:latest
 
-    - name: Deploy to Cloud Run
-      working-directory: server
-      run: |-
-        gcloud run deploy ${{ env.SERVICE }} \
-          --region ${{ env.REGION }} \
-          --image mern-server:latest \
-          --platform "managed" \
-          --quiet
+    - name: Build Docker image
+      run: docker build . -t $PROJECT_ID:$GITHUB_RUN_ID
+
+
+    # - name: Build and Push Container
+    #   run: |-
+    #     docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} ./server
+    #     docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}
+
+    # - name: Deploy to Cloud Run
+    #   working-directory: server
+    #   run: |-
+    #     gcloud run deploy ${{ env.SERVICE }} \
+    #       --region ${{ env.REGION }} \
+    #       --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} \
+    #       --platform "managed" \
+    #       --quiet
