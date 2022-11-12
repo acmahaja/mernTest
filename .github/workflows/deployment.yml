@@ -4,12 +4,14 @@ on: [push]
 jobs:
   deploy-server:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@master
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@main
-        with:
-          service_account_email: ${{ secrets.GCP_EMAIL }}
-          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
-          export_default_credentials: true
+    steps:
+    - uses: 'actions/checkout@v3'
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+      
