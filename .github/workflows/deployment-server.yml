@@ -25,9 +25,8 @@ jobs:
         credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
     - name: Build and Push Container
-      working-directory: server
       run: |-
-        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} .
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} ./server
         docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }}
 
     - name: Deploy to Cloud Run
