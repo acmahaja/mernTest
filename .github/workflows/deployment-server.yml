@@ -26,14 +26,14 @@ jobs:
 
     - name: Build and Push Container
       run: |-
-        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} ./server
-        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }}
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:latest ./server
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:latest
 
     - name: Deploy to Cloud Run
       working-directory: server
       run: |-
         gcloud run deploy ${{ env.SERVICE }} \
           --region ${{ env.REGION }} \
-          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} \
+          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:latset \
           --platform "managed" \
           --quiet
