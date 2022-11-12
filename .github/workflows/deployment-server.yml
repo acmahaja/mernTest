@@ -26,8 +26,8 @@ jobs:
 
     - name: Build and Push Container
       run: |-
-        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:latest ./server
-        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:latest
+        docker build -t mern-server:latest ./server
+        docker push mern-server:latest
 
     - name: Deploy to Cloud Run
       working-directory: server
