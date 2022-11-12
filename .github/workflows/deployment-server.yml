@@ -1,0 +1,38 @@
+name: deploy
+on: [push]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  SERVICE: server
+  REGION: us-east-1
+
+
+jobs:
+  deploy-server:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - uses: 'actions/checkout@v3'
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+    - name: Build and Push Container
+      working-directory: server
+      run: |-
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} .
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }}
+
+    - name: Deploy to Cloud Run
+      working-directory: server
+      run: |-
+        gcloud run deploy ${{ env.SERVICE }} \
+          --region ${{ env.REGION }} \
+          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} \
+          --platform "managed" \
+          --quiet
