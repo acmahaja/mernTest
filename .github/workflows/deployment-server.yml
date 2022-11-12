@@ -25,13 +25,11 @@ jobs:
 
 
     - name: Build Docker image
-      run: docker build -t ${{ secrets.PROJECT_ID }}:$GITHUB_RUN_ID ./server
+      run: docker build -t ${{secrets.PROJECT_ID }}:$GITHUB_RUN_ID ./server
 
 
-    # - name: Build and Push Container
-    #   run: |-
-    #     docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} ./server
-    #     docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}
+    - name: Push Docker image
+      run: docker push ${{secrets.PROJECT_ID }}:$GITHUB_RUN_ID
 
     # - name: Deploy to Cloud Run
     #   working-directory: server
