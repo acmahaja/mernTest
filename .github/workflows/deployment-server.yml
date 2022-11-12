@@ -33,7 +33,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: ${{secrets.PROJECT_ID }}:$GITHUB_RUN_ID
+        tags: user/app:latest
 
 
     # - name: Build Docker image
