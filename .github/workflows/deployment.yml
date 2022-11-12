@@ -1,6 +1,12 @@
 name: deploy
 on: [push]
 
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  SERVICE: YOUR_SERVICE_NAME
+  REGION: YOUR_SERVICE_REGION
+
+
 jobs:
   deploy-server:
     runs-on: ubuntu-latest
@@ -11,7 +17,8 @@ jobs:
     steps:
     - uses: 'actions/checkout@v3'
     - id: 'auth'
+      name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v1'
       with:
-        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-      
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
