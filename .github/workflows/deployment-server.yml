@@ -51,7 +51,7 @@ jobs:
         tags: user/merntest:latest
 
     - name: Image digest
-      run: echo ${{ steps.docker_build.outputs.digest }}
+      run: echo ${{ steps.docker_build.outputs }}
 
     #####################################################################################################
 
@@ -78,7 +78,7 @@ jobs:
           region: ${{secrets.REGION}}
           project: ${{secrets.PROJECT_ID}}
           service: 'server'
-          image: 'docker.io/user/merntest:latest'
+          image: 'us-east-1-docker.pkg.dev'
 
       - name: 'Use output'
         run: 'curl "${{ steps.deploy.outputs.url }}"'
