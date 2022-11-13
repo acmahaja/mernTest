@@ -34,23 +34,23 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: server
-        push: true
+        load: true
         tags: user/app:latest
 
     #####################################################################################################
 
-    - name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v1'
-      with:
-        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+    # - name: 'Authenticate to Google Cloud'
+    #   uses: 'google-github-actions/auth@v1'
+    #   with:
+    #     credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
-    - name: Deploy to Cloud Run
-      uses: 'google-github-actions/deploy-cloudrun@v0'
-      with:
-        region: ${{secrets.REGION}}
-        project: ${{secrets.PROJECT_ID}}
-        service: 'server'
-        image: 'docker.io/library/user/app:latest'
+    # - name: Deploy to Cloud Run
+    #   uses: 'google-github-actions/deploy-cloudrun@v0'
+    #   with:
+    #     region: ${{secrets.REGION}}
+    #     project: ${{secrets.PROJECT_ID}}
+    #     service: 'server'
+    #     image: 'docker.io/library/user/app:latest'
 
-    - name: 'Use output'
-      run: 'curl "${{ steps.deploy.outputs.url }}"'
+    # - name: 'Use output'
+    #   run: 'curl "${{ steps.deploy.outputs.url }}"'
