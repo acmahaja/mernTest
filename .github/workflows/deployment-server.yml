@@ -1,117 +1,88 @@
-name: deploy
-on: [push]
+# This workflow will deploy source code on Cloud Run when a commit is pushed to the "master" branch
+#
+# Overview:
+#
+# 1. Authenticate to Google Cloud
+# 2. Deploy it to Cloud Run
+#
+# To configure this workflow:
+#
+# 1. Ensure the required Google Cloud APIs are enabled:
+#
+#    Cloud Run            run.googleapis.com
+#    Cloud Build          cloudbuild.googleapis.com
+#    Artifact Registry    artifactregistry.googleapis.com
+#
+# 2. Create and configure Workload Identity Federation for GitHub (https://github.com/google-github-actions/auth#setting-up-workload-identity-federation)
+#
+# 3. Ensure the required IAM permissions are granted
+#
+#    Cloud Run
+#      roles/run.admin
+#      roles/iam.serviceAccountUser     (to act as the Cloud Run runtime service account)
+#
+#    Cloud Build
+#      roles/cloudbuild.builds.editor
+#
+#    Cloud Storage
+#      roles/storage.objectAdmin
+#
+#    Artifact Registry
+#      roles/artifactregistry.admin     (project or repository level)
+#
+#    NOTE: You should always follow the principle of least privilege when assigning IAM roles
+#
+# 4. Create GitHub secrets for WIF_PROVIDER and WIF_SERVICE_ACCOUNT
+#
+# 5. Change the values for the SERVICE and REGION environment variables (below).
+#
+# For more support on how to run this workflow, please visit https://github.com/marketplace/actions/deploy-to-cloud-run
+#
+# Further reading:
+#   Cloud Run runtime service account   - https://cloud.google.com/run/docs/securing/service-identity
+#   Cloud Run IAM permissions           - https://cloud.google.com/run/docs/deploying-source-code#permissions_required_to_deploy
+#   Cloud Run builds from source        - https://cloud.google.com/run/docs/deploying-source-code
+#   Principle of least privilege        - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
+
+name: Deploy to Cloud Run from Source
+
+on:
+  push:
+    branches: [ "master" ]
+
 env:
-  PROJECT_ID: ${{secrets.PROJECT_ID}} 
-  SERVICE: server
-  REGION: us-east-1
+  PROJECT_ID: tester-acmahaja # TODO: update Google Cloud project id
+  SERVICE: server # TODO: update Cloud Run service name
+  REGION: us-east-1 # TODO: update Cloud Run service region
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-
+    # Add 'id-token' with the intended permissions for workload identity federation
     permissions:
       contents: 'read'
       id-token: 'write'
 
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Google Auth
-      id: auth
-      uses: 'google-github-actions/auth@v0'
-      with:
-        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+      # NOTE: Alternative option - authentication via credentials json
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ env.REGION }}
+          # NOTE: If required, update to the appropriate source folder
+          source: ./server
 
-    - name: Deploy to Cloud Run
-      id: deploy
-      uses: google-github-actions/deploy-cloudrun@v0
-      with:
-        project: ${{secrets.PROJECT_ID}} 
-        service: ${{ env.SERVICE }}
-        region: ${{ env.REGION }}
-        source: ./server
-
-    - name: Show Output
-      run: echo ${{ steps.deploy.outputs.url }}
-
-# name: deploy
-# on: [push]
-
-# env:
-#   SERVICE: server
-#   REGION: us-east-1
-
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     permissions:
-#       contents: 'read'
-#       id-token: 'write'
-
-#     steps:
-#     - uses: 'actions/checkout@v3'
-
-#     #####################################################################################################
-
-#     - id: QEMU
-#       name: Set up QEMU
-#       uses: docker/setup-qemu-action@v2
-
-#     - id: BUILDx
-#       name: Set up Docker Buildx
-#       uses: docker/setup-buildx-action@v2
-
-#     - id: Docker_Auth
-#       name: Login to Docker
-#       uses: docker/login-action@v2
-#       with:
-#         registry: us-east-1-docker.pkg.dev
-#         username: _json_key
-#         password: ${{ secrets.GOOGLE_CREDENTIALS }}
-
-  
-#     - name: Build and Push Docker Image
-#       uses: docker/build-push-action@v3
-#       with:
-#         context: server
-#         load: true
-#         tags: |
-#               us-east1-docker.pkg.dev/acmahaja/merntest/server:latest
-#               us-east1-docker.pkg.dev/merntest/merntest/server:${{ steps.image-tags.outputs.sha }}
-
-
-#     - name: Image digest
-#       run: echo ${{ steps.docker_build.outputs }}
-
-#     #####################################################################################################
-
-#   deploy:
-#     needs:
-#     - build
-#     runs-on: ubuntu-latest
-#     permissions:
-#       contents: read
-#       id-token: write
-    
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v3
-
-#       - name: 'Authenticate to Google Cloud'
-#         uses: 'google-github-actions/auth@v1'
-#         with:
-#           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
-
-#       - name: Deploy to Cloud Run
-#         uses: 'google-github-actions/deploy-cloudrun@v0'
-#         with:
-#           region: ${{secrets.REGION}}
-#           project: ${{secrets.PROJECT_ID}}
-#           service: 'server'
-#           image: 'us-east1-docker.pkg.dev/acmahaja/merntest/server:latest'
-
-#       - name: 'Use output'
-#         run: 'curl "${{ steps.deploy.outputs.url }}"'
+      # If required, use the Cloud Run url output in later steps
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
