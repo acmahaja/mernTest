@@ -34,7 +34,7 @@ jobs:
       with:
         context: server
         push: false
-        tags: ${{secrets.PROJECT_ID }}:$GITHUB_RUN_ID
+        tags: ${{secrets.PROJECT_ID }}:${{github.sha}}
 
 
     # - name: Build Docker image
@@ -49,6 +49,6 @@ jobs:
       run: |-
         gcloud run deploy ${{ env.SERVICE }} \
           --region ${{ env.REGION }} \
-          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{  github.sha }} \
+          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{github.sha}} \
           --platform "managed" \
           --quiet
