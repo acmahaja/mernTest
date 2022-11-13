@@ -14,12 +14,14 @@ jobs:
       id-token: 'write'
 
     steps:
-    - uses: 'actions/checkout@v3'
+    - name: Checkout
+      uses: actions/checkout@v3
 
-    - name: 'Authenticate to Google Cloud'
+    - name: Google Auth
+      id: auth
       uses: 'google-github-actions/auth@v1'
       with:
-        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
 
     - name: Deploy to Cloud Run
@@ -30,7 +32,6 @@ jobs:
         region: ${{ env.REGION }}
         source: ./server
 
-    # If required, use the Cloud Run url output in later steps
     - name: Show Output
       run: echo ${{ steps.deploy.outputs.url }}
 
