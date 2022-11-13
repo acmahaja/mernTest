@@ -59,13 +59,13 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
-      # - name: Deploy to Cloud Run
-      #   uses: 'google-github-actions/deploy-cloudrun@v0'
-      #   with:
-      #     region: ${{secrets.REGION}}
-      #     project: ${{secrets.PROJECT_ID}}
-      #     service: 'server'
-      #     image: 'docker.io/library/user/app:latest'
+      - name: Deploy to Cloud Run
+        uses: 'google-github-actions/deploy-cloudrun@v0'
+        with:
+          region: ${{secrets.REGION}}
+          project: ${{secrets.PROJECT_ID}}
+          service: 'server'
+          image: 'docker.io/user/merntest:latest'
 
-      # - name: 'Use output'
-      #   run: 'curl "${{ steps.deploy.outputs.url }}"'
+      - name: 'Use output'
+        run: 'curl "${{ steps.deploy.outputs.url }}"'
