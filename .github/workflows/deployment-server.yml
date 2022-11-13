@@ -40,7 +40,8 @@ jobs:
       with:
         context: server
         load: true
-        tags: us-east1-docker.pkg.dev/acmahaja/merntest/server:latest
+        tags: |
+              us-east1-docker.pkg.dev/acmahaja/merntest/server:latest
               us-east1-docker.pkg.dev/merntest/merntest/server:${{ steps.image-tags.outputs.sha }}
 
 
