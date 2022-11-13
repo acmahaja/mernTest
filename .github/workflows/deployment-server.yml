@@ -35,12 +35,14 @@ jobs:
         password: ${{ secrets.GOOGLE_CREDENTIALS }}
 
   
-    - name: Build Docker Image
+    - name: Build and Push Docker Image
       uses: docker/build-push-action@v3
       with:
         context: server
         load: true
-        tags: merntest/server:latest
+        tags: us-east1-docker.pkg.dev/acmahaja/merntest/server:latest
+              us-east1-docker.pkg.dev/merntest/merntest/server:${{ steps.image-tags.outputs.sha }}
+
 
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs }}
@@ -70,7 +72,7 @@ jobs:
           region: ${{secrets.REGION}}
           project: ${{secrets.PROJECT_ID}}
           service: 'server'
-          image: 'us-east-1-docker.pkg.dev'
+          image: 'us-east1-docker.pkg.dev/acmahaja/merntest/server:latest'
 
       - name: 'Use output'
         run: 'curl "${{ steps.deploy.outputs.url }}"'
