@@ -37,6 +37,9 @@ jobs:
         load: true
         tags: user/app:latest
 
+    - name: Image digest
+      run: echo ${{ steps.docker_build.outputs.digest }}
+
     #####################################################################################################
 
     # - name: 'Authenticate to Google Cloud'
