@@ -33,7 +33,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: server
-        push: true
+        push: false
         tags: user/app:latest
 
 
