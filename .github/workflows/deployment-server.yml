@@ -37,16 +37,11 @@ jobs:
         tags: user/app:latest
 
 
-    # - name: Build Docker image
-    #   run: docker build -t ${{secrets.PROJECT_ID }}:$GITHUB_RUN_ID ./server
-
-
-    # - name: Push Docker image
-    #   run: docker push ${{secrets.PROJECT_ID }}:$GITHUB_RUN_ID
 
     - name: Deploy to Cloud Run
       uses: 'google-github-actions/deploy-cloudrun@v0'
       with:
+        project: ${{secrets.PROJECT_ID}}
         service: 'server'
         image: 'docker.io/library/user/app:latest'
 
