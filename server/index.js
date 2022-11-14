@@ -6,7 +6,7 @@ const cors = require('cors')
 app.use(cors())
 
 app.get('/', (req,res) => {
-    res.send(JSON.stringify("Mern Test App"));
+    res.send(JSON.stringify("This is a Mern Test App"));
 })
 
 app.listen( port, () => {
