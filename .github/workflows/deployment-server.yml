@@ -30,7 +30,7 @@ jobs:
           uses: actions/checkout@v2
 
         - name: Build Docker image
-          run: docker build . -t $IMAGE_NAME 0f ./server
+          run: docker build . -t $IMAGE_NAME -f ./server
 
         - name: Test Docker image
           run: docker run $IMAGE_NAME sh -c "go test -v"
