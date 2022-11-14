@@ -1,4 +1,4 @@
-name: Docker
+name: Deploy Server
 
 on:
   push:
@@ -36,7 +36,7 @@ jobs:
           run: docker push $IMAGE_NAME
 
         - name: Deploy Docker image
-          run: gcloud run deploy ${{ secrets.GCP_PROJECT_ID }} --image $IMAGE_NAME --region us-east1 --platform managed
+          run: gcloud run deploy server --image $IMAGE_NAME --region us-east1 --platform managed --ser
 
         - name: Show Output
           run: echo ${{ steps.deploy.outputs.url }}
