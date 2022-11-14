@@ -1,44 +1,42 @@
-name: Deploy to Cloud Run from Source
+name: Docker
 
 on:
   push:
-    branches:
-      - master
-
-env:
-  PROJECT_ID: tester-acmahaja # TODO: update Google Cloud project id
-  SERVICE: server # TODO: update Cloud Run service name
-  REGION: us-east1 # TODO: update Cloud Run service region
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
-  deploy:
-    # Add 'id-token' with the intended permissions for workload identity federation
-    permissions:
-      contents: 'read'
-      id-token: 'write'
 
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+    deploy:
 
-      - name: Google Auth
-        id: auth
-        uses: 'google-github-actions/auth@v0'
-        with:
-          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
-          service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
+        name: Setup Gcloud Account
+        runs-on: ubuntu-latest
+        env:
+          IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}
+        steps:
 
-      - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v0
-        with:
-          project: ${{ env.PROJECT_ID }}
-          service: ${{ env.SERVICE }}
-          region: ${{ env.REGION }}
-          # NOTE: If required, update to the appropriate source folder
-          source: ./server
+        - name: Login
+          uses: google-github-actions/setup-gcloud@v0
+          with:
+            project_id: ${{ secrets.GCP_PROJECT_ID }}
+            service_account_email: ${{ secrets.GCP_EMAIL }}
+            service_account_key: ${{ secrets.GCP_CREDENTIALS }}
 
-      # If required, use the Cloud Run url output in later steps
-      - name: Show Output
-        run: echo ${{ steps.deploy.outputs.url }}
+        - name: Configure Docker
+          run: gcloud auth configure-docker --quiet
+
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - name: Build Docker image
+          run: docker build . -t $IMAGE_NAME 0f ./server
+
+        - name: Test Docker image
+          run: docker run $IMAGE_NAME sh -c "go test -v"
+
+        - name: Push Docker image
+          run: docker push $IMAGE_NAME
+
+        - name: Deploy Docker image
+          run: gcloud run deploy ${{ secrets.GCP_PROJECT_ID }} --image $IMAGE_NAME --region us-central1 --platform managed
